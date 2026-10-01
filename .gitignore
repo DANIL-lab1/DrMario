@@ -1,17 +1,45 @@
-# Build
+# ===== Build =====
 build/
 .gradle/
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
 
-# IDE
+# ===== IDE =====
+# IntelliJ IDEA
 .idea/
 *.iml
+*.iws
+*.ipr
+
+# NetBeans
 .nb-gradle/
+.nb-gradle-properties
 nbproject/
+nb-configuration.xml
 bin/
 out/
 
-# OS
+# Eclipse
+.classpath
+.project
+.settings/
+
+# VS Code
+.vscode/
+
+# ===== Logs =====
+*.log
+logs/
+
+# ===== Game data =====
+*.json
+saves/
+
+# ===== OS =====
 .DS_Store
 Thumbs.db
+
+# ===== Temporary =====
+*.tmp
+*.swp
+*.bak
