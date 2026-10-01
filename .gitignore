@@ -1,0 +1,17 @@
+# Build
+build/
+.gradle/
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.nb-gradle/
+nbproject/
+bin/
+out/
+
+# OS
+.DS_Store
+Thumbs.db
