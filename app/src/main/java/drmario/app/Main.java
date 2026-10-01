@@ -1,27 +1,38 @@
 package drmario.app;
 
-import drmario.model.Board;
-import drmario.model.Cell;
-import drmario.model.PillColor;
+import drmario.model.*;
 
 public class Main {
     public static void main(String[] args) {
         System.out.println("=== Dr. Mario - Test ===");
         
-        // Create board
-        Board board = new Board();
-        System.out.println("Board created: " + Board.WIDTH + "x" + Board.HEIGHT);
+         // Create a capsule
+        Capsule capsule = new Capsule(0, 3, PillColor.RED, PillColor.BLUE, Direction.HORIZONTAL);
+        System.out.println("Created: " + capsule);
+        System.out.println("First half:  (" + capsule.getRow() + ", " + capsule.getCol() + ") = " + capsule.getFirstColor());
+        System.out.println("Second half: (" + capsule.getSecondRow() + ", " + capsule.getSecondCol() + ") = " + capsule.getSecondColor());
+    
+        // Rotate
+        capsule.rotate();
+        System.out.println("\nAfter rotation: " + capsule);
+        System.out.println("First half:  (" + capsule.getRow() + ", " + capsule.getCol() + ")");
+        System.out.println("Second half: (" + capsule.getSecondRow() + ", " + capsule.getSecondCol() + ")");
         
-        // Set some cells
-        board.setCell(15, 0, new Cell(Cell.Type.PILL, PillColor.RED));
-        board.setCell(15, 1, new Cell(Cell.Type.PILL, PillColor.BLUE));
-        board.setCell(15, 2, new Cell(Cell.Type.VIRUS, PillColor.GREEN));
+        // Move down
+        capsule.moveDown();
+        System.out.println("\nAfter move down: " + capsule);
         
-        // Print board
-        System.out.println("\nBoard:");
-        board.print();
+        // Move right
+        capsule.moveRight();
+        System.out.println("After move right: " + capsule);
         
-        // Test random color
-        System.out.println("\nRandom color: " + PillColor.random());
+        // Copy
+        Capsule copy = capsule.copy();
+        System.out.println("\nCopy: " + copy);
+        System.out.println("Copy equals original: " + capsule.equals(copy));
+        
+        // Random capsule
+        Capsule random = Capsule.random(0, 4);
+        System.out.println("\nRandom capsule: " + random);
     }
 }
