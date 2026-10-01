@@ -1,47 +1,65 @@
 package drmario.app;
 
-import drmario.logic.Gravity;
+import drmario.logic.Matcher;
 import drmario.model.*;
+
+import java.util.List;
+import java.util.Set;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("=== Dr. Mario - Test ===");
         
-        Board board = new Board();
+        // Test 1: 4 in a row (horizontal)
+        System.out.println("Test 1: 4 horizontal RED");
+        Board board1 = new Board();
+        for (int col = 2; col < 6; col++) {
+            board1.setCell(15, col, new Cell(Cell.Type.PILL, PillColor.RED));
+        }
+        board1.print();
+        List<Set<Position>> matches1 = Matcher.findMatches(board1);
+        System.out.println("Matches found: " + matches1.size());
+        System.out.println("Group size: " + matches1.get(0).size());
         
-        // Test 1: Capsule in empty board — can move down
-        Capsule capsule = new Capsule(0, 3, PillColor.RED, PillColor.BLUE, Direction.HORIZONTAL);
-        System.out.println("Test 1: Capsule at top, empty board");
-        System.out.println("  " + capsule);
-        System.out.println("  Can move down? " + Gravity.canMoveDown(capsule, board));
-        System.out.println("  Can move left? " + Gravity.canMoveLeft(capsule, board));
-        System.out.println("  Can move right? " + Gravity.canMoveRight(capsule, board));
-        System.out.println("  Can rotate? " + Gravity.canRotate(capsule, board));
+        // Test 2: 4 in a column (vertical)
+        System.out.println("\nTest 2: 4 vertical BLUE");
+        Board board2 = new Board();
+        for (int row = 12; row < 16; row++) {
+            board2.setCell(row, 3, new Cell(Cell.Type.PILL, PillColor.BLUE));
+        }
+        board2.print();
+        List<Set<Position>> matches2 = Matcher.findMatches(board2);
+        System.out.println("Matches found: " + matches2.size());
         
-        // Test 2: Capsule at left edge — cannot move left
-        Capsule leftEdge = new Capsule(0, 0, PillColor.RED, PillColor.BLUE, Direction.HORIZONTAL);
-        System.out.println("\nTest 2: Capsule at left edge");
-        System.out.println("  " + leftEdge);
-        System.out.println("  Can move left? " + Gravity.canMoveLeft(leftEdge, board));
+        // Test 3: Only 3 — no match
+        System.out.println("\nTest 3: Only 3 GREEN");
+        Board board3 = new Board();
+        for (int col = 2; col < 5; col++) {
+            board3.setCell(15, col, new Cell(Cell.Type.PILL, PillColor.GREEN));
+        }
+        board3.print();
+        List<Set<Position>> matches3 = Matcher.findMatches(board3);
+        System.out.println("Matches found: " + matches3.size() + " (expected 0)");
         
-        // Test 3: Capsule at right edge — cannot move right
-        Capsule rightEdge = new Capsule(0, 6, PillColor.RED, PillColor.BLUE, Direction.HORIZONTAL);
-        System.out.println("\nTest 3: Capsule at right edge");
-        System.out.println("  " + rightEdge);
-        System.out.println("  Can move right? " + Gravity.canMoveRight(rightEdge, board));
+        // Test 4: L-shaped group (5 cells)
+        System.out.println("\nTest 4: L-shaped RED (5 cells)");
+        Board board4 = new Board();
+        board4.setCell(15, 2, new Cell(Cell.Type.PILL, PillColor.RED));
+        board4.setCell(15, 3, new Cell(Cell.Type.PILL, PillColor.RED));
+        board4.setCell(15, 4, new Cell(Cell.Type.PILL, PillColor.RED));
+        board4.setCell(14, 2, new Cell(Cell.Type.PILL, PillColor.RED));
+        board4.setCell(13, 2, new Cell(Cell.Type.PILL, PillColor.RED));
+        board4.print();
+        List<Set<Position>> matches4 = Matcher.findMatches(board4);
+        System.out.println("Matches found: " + matches4.size());
+        System.out.println("Group size: " + matches4.get(0).size());
         
-        // Test 4: Capsule above another pill — cannot move down
-        board.setCell(5, 3, new Cell(Cell.Type.PILL, PillColor.GREEN));
-        Capsule above = new Capsule(3, 3, PillColor.RED, PillColor.BLUE, Direction.VERTICAL);
-        System.out.println("\nTest 4: Capsule above existing pill");
-        System.out.println("  " + above);
-        System.out.println("  Can move down? " + Gravity.canMoveDown(above, board));
-        
-        // Test 5: Lock capsule into board
-        System.out.println("\nTest 5: Lock capsule into board");
-        Capsule toLock = new Capsule(15, 3, PillColor.RED, PillColor.BLUE, Direction.HORIZONTAL);
-        Gravity.lockCapsule(toLock, board);
-        System.out.println("  After lock:");
-        board.print();
+        // Test 5: Clear matches
+        System.out.println("\nTest 5: Clear matches");
+        System.out.println("Before clear:");
+        board1.print();
+        int cleared = Matcher.clearMatches(board1);
+        System.out.println("Cleared cells: " + cleared);
+        System.out.println("After clear:");
+        board1.print();
     }
 }
