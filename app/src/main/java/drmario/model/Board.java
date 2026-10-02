@@ -102,4 +102,15 @@ public class Board {
             System.out.println();
         }
     }
+    
+    /**
+     * Places a virus at the given position.
+     *
+     * @param row   the row
+     * @param col   the column
+     * @param color the virus color
+     */
+    public void addVirus(int row, int col, PillColor color){
+        setCell(row, col, new Cell(Cell.Type.VIRUS, color));
+    }
 }

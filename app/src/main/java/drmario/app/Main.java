@@ -1,65 +1,59 @@
 package drmario.app;
 
 import drmario.logic.Matcher;
-import drmario.model.*;
-
-import java.util.List;
-import java.util.Set;
+import drmario.logic.VirusSpawner;
+import drmario.model.Board;
 
 public class Main {
     public static void main(String[] args) {
         
-        // Test 1: 4 in a row (horizontal)
-        System.out.println("Test 1: 4 horizontal RED");
+        // Test 1: Spawn 5 viruses
+        System.out.println("Test 1: Spawn 5 viruses");
         Board board1 = new Board();
-        for (int col = 2; col < 6; col++) {
-            board1.setCell(15, col, new Cell(Cell.Type.PILL, PillColor.RED));
-        }
+        VirusSpawner spawner = new VirusSpawner();
+        int spawned = spawner.spawn(board1, 5);
+        System.out.println("Spawned: " + spawned);
         board1.print();
-        List<Set<Position>> matches1 = Matcher.findMatches(board1);
-        System.out.println("Matches found: " + matches1.size());
-        System.out.println("Group size: " + matches1.get(0).size());
         
-        // Test 2: 4 in a column (vertical)
-        System.out.println("\nTest 2: 4 vertical BLUE");
+        // Test 2: Count viruses
+        System.out.println("\nTest 2: Count viruses on board");
+        int virusCount = 0;
+        for (int row = 0; row < Board.HEIGHT; row++) {
+            for (int col = 0; col < Board.WIDTH; col++) {
+                if (board1.getCell(row, col).isVirus()) {
+                    virusCount++;
+                }
+            }
+        }
+        System.out.println("Viruses on board: " + virusCount);
+        
+        // Test 3: Viruses for level
+        System.out.println("\nTest 3: Viruses per level");
+        for (int level = 1; level <= 5; level++) {
+            System.out.println("  Level " + level + ": " + VirusSpawner.virusesForLevel(level) + " viruses");
+        }
+        
+        // Test 4: Spawn many viruses
+        System.out.println("\nTest 4: Spawn 20 viruses");
         Board board2 = new Board();
-        for (int row = 12; row < 16; row++) {
-            board2.setCell(row, 3, new Cell(Cell.Type.PILL, PillColor.BLUE));
-        }
+        int spawned2 = spawner.spawn(board2, 20);
+        System.out.println("Spawned: " + spawned2);
         board2.print();
-        List<Set<Position>> matches2 = Matcher.findMatches(board2);
-        System.out.println("Matches found: " + matches2.size());
         
-        // Test 3: Only 3 — no match
-        System.out.println("\nTest 3: Only 3 GREEN");
+        // Test 5: Check matches with viruses
+        System.out.println("\nTest 5: Virus matching");
         Board board3 = new Board();
-        for (int col = 2; col < 5; col++) {
-            board3.setCell(15, col, new Cell(Cell.Type.PILL, PillColor.GREEN));
-        }
+        // Place 3 viruses + 1 pill of same color
+        board3.addVirus(15, 2, drmario.model.PillColor.RED);
+        board3.addVirus(15, 3, drmario.model.PillColor.RED);
+        board3.addVirus(15, 4, drmario.model.PillColor.RED);
+        board3.setCell(15, 5, new drmario.model.Cell(
+            drmario.model.Cell.Type.PILL, 
+            drmario.model.PillColor.RED
+        ));
         board3.print();
-        List<Set<Position>> matches3 = Matcher.findMatches(board3);
-        System.out.println("Matches found: " + matches3.size() + " (expected 0)");
         
-        // Test 4: L-shaped group (5 cells)
-        System.out.println("\nTest 4: L-shaped RED (5 cells)");
-        Board board4 = new Board();
-        board4.setCell(15, 2, new Cell(Cell.Type.PILL, PillColor.RED));
-        board4.setCell(15, 3, new Cell(Cell.Type.PILL, PillColor.RED));
-        board4.setCell(15, 4, new Cell(Cell.Type.PILL, PillColor.RED));
-        board4.setCell(14, 2, new Cell(Cell.Type.PILL, PillColor.RED));
-        board4.setCell(13, 2, new Cell(Cell.Type.PILL, PillColor.RED));
-        board4.print();
-        List<Set<Position>> matches4 = Matcher.findMatches(board4);
-        System.out.println("Matches found: " + matches4.size());
-        System.out.println("Group size: " + matches4.get(0).size());
-        
-        // Test 5: Clear matches
-        System.out.println("\nTest 5: Clear matches");
-        System.out.println("Before clear:");
-        board1.print();
-        int cleared = Matcher.clearMatches(board1);
-        System.out.println("Cleared cells: " + cleared);
-        System.out.println("After clear:");
-        board1.print();
+        int matches = Matcher.findMatches(board3).size();
+        System.out.println("Matches found: " + matches + " (expected 1 - 3 viruses + 1 pill)");
     }
 }
