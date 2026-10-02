@@ -21,7 +21,7 @@ Built from scratch in Java with JavaFX for learning purposes.
 ### Logic 🚧
 - [x] `Gravity` — collision detection, movement validation
 - [x] `Matcher` — find 4+ same-colored groups
-- [ ] `VirusSpawner` — generate viruses
+- [x] `VirusSpawner` — generate viruses
 - [ ] `ScoreManager` — score and level tracking
 
 ### UI ⏳
