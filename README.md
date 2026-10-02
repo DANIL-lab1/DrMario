@@ -18,14 +18,14 @@ Built from scratch in Java with JavaFX for learning purposes.
 - [x] `Direction` — enum (HORIZONTAL, VERTICAL)
 - [x] `Capsule` — two-colored pill with rotation
 
-### Logic 🚧
+### Logic ✅
 - [x] `Gravity` — collision detection, movement validation
 - [x] `Matcher` — find 4+ same-colored groups
 - [x] `VirusSpawner` — generate viruses
 - [x] `ScoreManager` — score and level tracking
-- [ ] `GameEngine` — central game logic
+- [x] `GameEngine` — central game logic
 
-### UI ⏳
+### UI 🚧
 - [ ] `GamePanel` — JavaFX Canvas rendering
 - [ ] `KeyHandler` — keyboard controls (arrows, space)
 - [ ] `GameLoop` — AnimationTimer
@@ -43,19 +43,34 @@ Built from scratch in Java with JavaFX for learning purposes.
 - Model: `PillColor`, `Cell`, `Board`, `Direction`, `Capsule`
 
 ### v0.2 — Matcher ✅
-- Logic: `Matcher` — find group of 4+ (BFS)
-- Logic: `Gravity` — collision check
-- Model: `Position` — coordinates
+- Logic: `Matcher` — find 4+ groups (BFS)
+- Logic: `Gravity` — collision detection
+- Model: `Position` — immutable coordinates
+- Fix: `DIRECTIONS` array (right was duplicated)
 
-### v0.3 — GameEngine 🚧
+### v0.3 — VirusSpawner ✅
+- Logic: `VirusSpawner` — random virus placement
+- Logic: `VirusSpawner` — viruses per level formula
+- Model: `Board.addVirus()` method
+
+### v0.4 — ScoreManager ✅
+- Logic: `ScoreManager` — score tracking
+- Logic: `ScoreManager` — level progression
+- Logic: `ScoreManager` — speed increase per level
+- Scoring: +10 per pill, +100 per virus, +1000 per level
+
+### v0.5 — GameEngine ✅
 - Logic: `GameEngine` — central class connecting all logic
 - Logic: `ScoreManager` — score, levels, speed
 - Logic: `VirusSpawner` — virus generation
+- Game lifecycle: start, tick, lock, match, level up
 
 ### v1.0 — Playable Game ⏳
-- JavaFX UI
-- Full game loop
-- Levels, score, game over
+- JavaFX UI: `GamePanel`, `KeyHandler`, `GameLoop`
+- Full game loop with animations
+- Game Over screen
+- Win condition
+- Sound effects
 
 ## Technologies
 
