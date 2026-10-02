@@ -18,13 +18,14 @@ Built from scratch in Java with JavaFX for learning purposes.
 - [x] `Direction` — enum (HORIZONTAL, VERTICAL)
 - [x] `Capsule` — two-colored pill with rotation
 
-### Logic ✅
+### Logic 🚧
 - [x] `Gravity` — collision detection, movement validation
 - [x] `Matcher` — find 4+ same-colored groups
 - [x] `VirusSpawner` — generate viruses
 - [x] `ScoreManager` — score and level tracking
+- [ ] `GameEngine` — central game logic
 
-### UI 🚧
+### UI ⏳
 - [ ] `GamePanel` — JavaFX Canvas rendering
 - [ ] `KeyHandler` — keyboard controls (arrows, space)
 - [ ] `GameLoop` — AnimationTimer
@@ -38,17 +39,21 @@ Built from scratch in Java with JavaFX for learning purposes.
 
 ## Version History
 
-### v0.1 — Model + Gravity ✅
-- Model: PillColor, Cell, Board, Direction, Capsule
-- Logic: Gravity (collision detection, locking)
+### v0.1 — Model ✅
+- Model: `PillColor`, `Cell`, `Board`, `Direction`, `Capsule`
 
 ### v0.2 — Matcher ✅
-- Logic: Matcher (in progress)
+- Logic: `Matcher` — find group of 4+ (BFS)
+- Logic: `Gravity` — collision check
+- Model: `Position` — coordinates
 
-### v0.3 — UI 🚧
-- JavaFX rendering
+### v0.3 — GameEngine 🚧
+- Logic: `GameEngine` — central class connecting all logic
+- Logic: `ScoreManager` — score, levels, speed
+- Logic: `VirusSpawner` — virus generation
 
 ### v1.0 — Playable Game ⏳
+- JavaFX UI
 - Full game loop
 - Levels, score, game over
 
