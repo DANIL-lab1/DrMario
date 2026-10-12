@@ -1,5 +1,7 @@
 package drmario.model;
 
+import java.util.Set;
+
 /**
  * Represents the game board.
  * <p>
@@ -21,17 +23,11 @@ public class Board {
     
     private final Cell[][] cells;
     
-    /**
-     * Creates an empty board.
-     */
     public Board() {
         this.cells = new Cell[HEIGHT][WIDTH];
         clear();
     }
     
-    /**
-     * Fills the board with empty cells.
-     */
     public void clear() {
         for (int row = 0; row < HEIGHT; row++) {
             for (int col = 0; col < WIDTH; col++) {
@@ -40,14 +36,6 @@ public class Board {
         }
     }
     
-    /**
-     * Gets a cell at the given position.
-     *
-     * @param row the row (0 = top)
-     * @param col the column (0 = left)
-     * @return the cell
-     * @throws IndexOutOfBoundsException if position is invalid
-     */
     public Cell getCell(int row, int col) {
         if (!isValidPosition(row, col)) {
             throw new IndexOutOfBoundsException("Invalid position: " + row + ", " + col);
@@ -55,13 +43,6 @@ public class Board {
         return cells[row][col];
     }
     
-    /**
-     * Sets a cell at the given position.
-     *
-     * @param row  the row (0 = top)
-     * @param col  the column (0 = left)
-     * @param cell the cell to set
-     */
     public void setCell(int row, int col, Cell cell) {
         if (!isValidPosition(row, col)) {
             throw new IndexOutOfBoundsException("Invalid position: " + row + ", " + col);
@@ -69,31 +50,66 @@ public class Board {
         cells[row][col] = cell;
     }
     
-    /**
-     * Checks if a position is within the board.
-     *
-     * @param row the row
-     * @param col the column
-     * @return true if valid, false otherwise
-     */
     public boolean isValidPosition(int row, int col) {
         return row >= 0 && row < HEIGHT && col >= 0 && col < WIDTH;
     }
     
-    /**
-     * Checks if a cell is empty.
-     *
-     * @param row the row
-     * @param col the column
-     * @return true if empty, false otherwise
-     */
     public boolean isEmpty(int row, int col) {
         return getCell(row, col).isEmpty();
     }
     
+    public void addVirus(int row, int col, PillColor color) {
+        setCell(row, col, new Cell(Cell.Type.VIRUS, color));
+    }
+    
     /**
-     * Prints the board to console (for debugging).
+     * Applies gravity to specific columns only.
+     *
+     * @param columns the set of column indices
      */
+    public void applyGravity(Set<Integer> columns) {
+        for (int col : columns) {
+            applyGravityInColumn(col);
+        }
+    }
+    
+    /**
+     * Applies gravity to all columns.
+     */
+    public void applyGravity() {
+        for (int col = 0; col < WIDTH; col++) {
+            applyGravityInColumn(col);
+        }
+    }
+    
+    private void applyGravityInColumn(int col) {
+        int writeRow = HEIGHT - 1;
+        
+        for (int readRow = HEIGHT - 1; readRow >= 0; readRow--) {
+            Cell cell = cells[readRow][col];
+            
+            if (!cell.isEmpty()) {
+                if (readRow != writeRow) {
+                    cells[writeRow][col] = cell;
+                    cells[readRow][col] = new Cell();
+                }
+                writeRow--;
+            }
+        }
+    }
+    
+    public int countViruses() {
+        int count = 0;
+        for (int row = 0; row < HEIGHT; row++) {
+            for (int col = 0; col < WIDTH; col++) {
+                if (cells[row][col].isVirus()) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+    
     public void print() {
         for (int row = 0; row < HEIGHT; row++) {
             for (int col = 0; col < WIDTH; col++) {
@@ -104,13 +120,28 @@ public class Board {
     }
     
     /**
-     * Places a virus at the given position.
+     * Moves all cells down by ONE row in the given columns.
+     * <p>
+     * Returns true if any cell was moved.
      *
-     * @param row   the row
-     * @param col   the column
-     * @param color the virus color
+     * @param columns the set of column indices
+     * @return true if at least one cell moved
      */
-    public void addVirus(int row, int col, PillColor color){
-        setCell(row, col, new Cell(Cell.Type.VIRUS, color));
-    }
+    public boolean stepGravity(Set<Integer> columns) {
+        boolean moved = false;
+
+        for (int col : columns) {
+            for (int row = HEIGHT - 1; row > 0; row--) {
+               Cell current = cells[row][col];
+               Cell above = cells[row - 1][col];
+
+               if (current.isEmpty() && !above.isEmpty()) {
+                   cells[row][col] = above;
+                   cells[row - 1][col] = new Cell();
+                   moved = true;
+                }
+            }
+        }
+        return moved;
+   }
 }

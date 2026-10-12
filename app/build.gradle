@@ -1,6 +1,5 @@
 plugins {
     id 'application'
-    id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 
 repositories {
@@ -8,17 +7,23 @@ repositories {
 }
 
 dependencies {
+    implementation "org.openjfx:javafx-base:21.0.3:win"
+    implementation "org.openjfx:javafx-graphics:21.0.3:win"
+    implementation "org.openjfx:javafx-controls:21.0.3:win"
+    implementation "org.openjfx:javafx-media:21.0.3:win"
+
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 application {
-    mainClass = 'drmario.app.Main'
+    mainClass = 'drmario.app.Launcher'
 }
 
-javafx {
-    version = '21'
-    modules = ['javafx.controls', 'javafx.graphics', 'javafx.media']
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 tasks.withType(JavaCompile) {

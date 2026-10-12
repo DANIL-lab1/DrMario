@@ -51,6 +51,7 @@ public class Matcher {
                 
                 if (group.size() >= MIN_MATCH_SIZE){
                     matches.add(group);
+                    //System.out.println("DEBUG: Match found at " + pos + ", size=" + group.size());
                 }
             }
         }

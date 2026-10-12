@@ -2,14 +2,19 @@ package drmario.logic;
 
 import drmario.model.Board;
 import drmario.model.PillColor;
+import drmario.model.Position;
 
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Spawns viruses on the board for a new level.
  * <p>
  * Viruses are placed randomly in the bottom half of the board,
  * so they don't interfere with the capsule spawn area.
+ * <p>
+ * After spawning, ensures no accidental 4+ groups exist.
  *
  * @author DANIL-lab1
  * @version 1.0
@@ -24,44 +29,34 @@ public class VirusSpawner {
     
     private final Random random;
     
-    /**
-     * Creates a spawner with a new Random instance.
-     */
-    public VirusSpawner(){
+    public VirusSpawner() {
         this.random = new Random();
     }
     
-    /**
-     * Creates a spawner with a given Random (for testing).
-     *
-     * @param random the random instance
-     */
-    public VirusSpawner(Random random){
+    public VirusSpawner(Random random) {
         this.random = random;
     }
     
     /**
      * Spawns the given number of viruses on the board.
      * <p>
-     * Viruses are placed randomly between {@link #MIN_ROW} and bottom.
-     * Each virus gets a random color.
+     * Also removes any accidental 4+ groups that may have formed.
      *
      * @param board the game board
      * @param count number of viruses to spawn
      * @return the number of viruses actually spawned
      */
-    public int spawn(Board board, int count){
+    public int spawn(Board board, int count) {
         int spawned = 0;
         int attempts = 0;
         
-        while (spawned < count && attempts < MAX_ATTEMPTS){
+        while (spawned < count && attempts < MAX_ATTEMPTS) {
             attempts++;
             
             int row = MIN_ROW + random.nextInt(Board.HEIGHT - MIN_ROW);
             int col = random.nextInt(Board.WIDTH);
             
-            // Skip if cell is not empty
-            if (!board.isEmpty(row, col)){
+            if (!board.isEmpty(row, col)) {
                 continue;
             }
             
@@ -70,19 +65,58 @@ public class VirusSpawner {
             spawned++;
         }
         
+        // Remove any accidental 4+ groups
+        removeInitialMatches(board);
+        
         return spawned;
     }
     
     /**
-     * Calculates the number of viruses for a given level.
+     * Removes any accidental 4+ groups created during spawning.
      * <p>
-     * Level 1: 4 viruses, each level adds more.
-     * Formula: 4 * level (capped at 84 = 8*16/2).
+     * Prevents free matches at game start.
+     *
+     * @param board the game board
+     */
+    private void removeInitialMatches(Board board) {
+        boolean changed = true;
+        
+        while (changed) {
+            changed = false;
+            List<Set<Position>> matches = Matcher.findMatches(board);
+            
+            for (Set<Position> group : matches) {
+                // Change one virus color to break the group
+                Position pos = group.iterator().next();
+                PillColor currentColor = board.getCell(pos.getRow(), pos.getCol()).getColor();
+                PillColor newColor = getDifferentColor(currentColor);
+                board.addVirus(pos.getRow(), pos.getCol(), newColor);
+                changed = true;
+            }
+        }
+    }
+    
+    /**
+     * Returns a color different from the given one.
+     *
+     * @param color the original color
+     * @return a different color
+     */
+    private PillColor getDifferentColor(PillColor color) {
+        PillColor[] colors = PillColor.values();
+        for (PillColor c : colors) {
+            if (c != color) return c;
+        }
+        return colors[0];
+    }
+    
+    /**
+     * Calculates the number of viruses for a given level.
      *
      * @param level the level number (1-based)
      * @return number of viruses
      */
-    public static int virusesForLevel(int level){
+    public static int virusesForLevel(int level) {
         return Math.min(4 * level, 84);
     }
 }

@@ -2,12 +2,14 @@ package drmario.logic;
 
 import drmario.model.Board;
 import drmario.model.Capsule;
+import drmario.model.Cell;
 import drmario.model.Direction;
 import drmario.model.PillColor;
 import drmario.model.Position;
 
 import java.util.List;
 import java.util.Set;
+import java.util.HashSet;
 
 /**
  * Central game logic that connects all components.
@@ -25,6 +27,22 @@ import java.util.Set;
  * @version 1.0
  */
 public class GameEngine {
+    
+    // Game States
+    public enum State {
+        PLAYING,
+        ANIMATING,
+        LEVEL_COMPLETE, 
+        GAME_OVER
+    }
+    
+    private State state;
+    private double animationTimer;
+    private static final double ANIMATION_STEP_TIME = 0.1;
+    private Set<Integer> animatingColumns;
+    
+    private double levelCompleteTimer;
+    private static final double LEVEL_COMPLETE_DELAY = 2.0; 
     
     /** Starting column for new capsules (center). */
     private static final int SPAWN_COL = Board.WIDTH / 2 - 1;
@@ -55,10 +73,12 @@ public class GameEngine {
     /**
      * Starts a new game from level 1.
      */
-    public void startNewGame(){
+    public void startNewGame() {
         this.board = new Board();
         this.score = new ScoreManager();
         this.gameOver = false;
+        this.state = State.PLAYING;
+        this.animationTimer = 0;
         this.fallTimer = 0;
         
         // Spawn viruses for level 1
@@ -82,7 +102,7 @@ public class GameEngine {
         
         // Check if spawn position is valid
         if (!Gravity.isValidPosition(currentCapsule, board)) {
-            gameOver = true;
+            state = State.GAME_OVER;  // ← Вместо gameOver = true
         }
     }
     
@@ -109,6 +129,7 @@ public class GameEngine {
      * matches are checked, and a new capsule spawns.
      */
     public void moveDown() {
+        if (!isPlaying() || currentCapsule == null) return;
         if (gameOver || currentCapsule == null) return;
         
         if (Gravity.canMoveDown(currentCapsule, board)) {
@@ -122,6 +143,7 @@ public class GameEngine {
      * Moves the current capsule left.
      */
     public void moveLeft() {
+        if (!isPlaying() || currentCapsule == null) return;
         if (gameOver || currentCapsule == null) return;
         
         if (Gravity.canMoveLeft(currentCapsule, board)) {
@@ -133,6 +155,7 @@ public class GameEngine {
      * Moves the current capsule right.
      */
     public void moveRight() {
+        if (!isPlaying() || currentCapsule == null) return;
         if (gameOver || currentCapsule == null) return;
         
         if (Gravity.canMoveRight(currentCapsule, board)) {
@@ -144,6 +167,7 @@ public class GameEngine {
      * Rotates the current capsule.
      */
     public void rotate() {
+        if (!isPlaying() || currentCapsule == null) return;
         if (gameOver || currentCapsule == null) return;
         
         if (Gravity.canRotate(currentCapsule, board)) {
@@ -155,6 +179,7 @@ public class GameEngine {
      * Drops the capsule instantly to the bottom.
      */
     public void drop() {
+        if (!isPlaying() || currentCapsule == null) return;
         if (gameOver || currentCapsule == null) return;
         
         while (Gravity.canMoveDown(currentCapsule, board)) {
@@ -173,13 +198,38 @@ public class GameEngine {
      * @param deltaTime time since last tick in seconds
      */
     public void tick(double deltaTime) {
-        if (gameOver || currentCapsule == null) return;
+        // Game Over State
+        if (state == State.GAME_OVER) return;
+
+        // Animating State
+        if (state == State.ANIMATING) {
+            animationTimer += deltaTime;
+
+            if (animationTimer >= ANIMATION_STEP_TIME) {
+                animationTimer = 0;
+                state = State.PLAYING;
+                animatingColumns = null;
+
+                if (Matcher.hasMatches(board)) {
+                    processMatches();
+                }
+            }
+            return;
+        }
+
+        // Playing State
+        if (state == State.PLAYING && currentCapsule != null) {
+            fallTimer += deltaTime;
+
+            if (fallTimer >= score.getFallSpeed()) {
+                fallTimer = 0;
+                moveDown();
+            }
+        }
         
-        fallTimer += deltaTime;
-        
-        if (fallTimer >= score.getFallSpeed()) {
-            fallTimer = 0;
-            moveDown();
+        // Level complete State
+        if (state == State.LEVEL_COMPLETE) {
+            return;
         }
     }
     
@@ -206,64 +256,79 @@ public class GameEngine {
     /**
      * Processes matches on the board.
      * <p>
-     * Finds all groups of 4+ and clears them.
-     * Adds score based on cleared cells.
+     * Uses chain reaction: after clearing and applying gravity,
+     * checks for new matches until none remain.
      */
     private void processMatches() {
-        List<Set<Position>> matches = Matcher.findMatches(board);
-        
-        if (matches.isEmpty()) {
-            return;
-        }
-        
-        // Count viruses and pills separately for scoring
-        int virusesCleared = 0;
-        int pillsCleared = 0;
-        
-        for (Set<Position> group : matches) {
-            for (Position pos : group) {
-                if (board.getCell(pos.getRow(), pos.getCol()).isVirus()) {
-                    virusesCleared++;
-                } else {
-                    pillsCleared++;
+        boolean foundMatches = true;
+
+        while (foundMatches) {
+            List<Set<Position>> matches = Matcher.findMatches(board);
+
+            if (matches.isEmpty()) {
+                foundMatches = false;
+                continue;
+            }
+
+            Set<Integer> affectedColumns = new HashSet<>();
+            int virusesCleared = 0;
+            int pillsCleared = 0;
+
+            for (Set<Position> group : matches) {
+                for (Position pos : group) {
+                    if (board.getCell(pos.getRow(), pos.getCol()).isVirus()) {
+                        virusesCleared++;
+                    } else {
+                        pillsCleared++;
+                    }
+                    affectedColumns.add(pos.getCol());
+                    board.setCell(pos.getRow(), pos.getCol(), new Cell());
                 }
-                board.setCell(pos.getRow(), pos.getCol(), new drmario.model.Cell());
+            }
+
+            score.addPillsCleared(pillsCleared);
+            score.addVirusesCleared(virusesCleared);
+
+            if (!affectedColumns.isEmpty()) {
+                board.applyGravity(affectedColumns);
+                state = State.ANIMATING;
+                animationTimer = 0;
+                return;
             }
         }
-        
-        score.addPillsCleared(pillsCleared);
-        score.addVirusesCleared(virusesCleared);
-        
-        // Check if all viruses are cleared
-        if (countViruses() == 0) {
+
+        if (board.countViruses() == 0) {
+            state = State.LEVEL_COMPLETE;
+            levelCompleteTimer = 0;
             score.completeLevel();
-            int virusCount = VirusSpawner.virusesForLevel(score.getLevel());
-            spawner.spawn(board, virusCount);
         }
     }
     
     /**
-     * Counts remaining viruses on the board.
-     *
-     * @return number of viruses
+     * Starts the next level after LEVEL_COMPLETE.
      */
-    private int countViruses() {
-        int count = 0;
-        for (int row = 0; row < Board.HEIGHT; row++) {
-            for (int col = 0; col < Board.WIDTH; col++) {
-                if (board.getCell(row, col).isVirus()) {
-                    count++;
-                }
-            }
-        }
-        return count;
+    public void startNextLevel() {
+        if (state != State.LEVEL_COMPLETE) return;
+
+        board.clear();
+        int virusCount = VirusSpawner.virusesForLevel(score.getLevel());
+        spawner.spawn(board, virusCount);
+
+        this.nextCapsule = createRandomCapsule();
+        spawnNewCapsule();
+
+        state = State.PLAYING;
     }
     
     // ========== GETTERS ==========
+    public State getState() { return state; }
+    public boolean isPlaying() { return state == State.PLAYING; }
+    public boolean isAnimating() { return state == State.ANIMATING; }
+    public boolean isGameOver() { return state == State.GAME_OVER; }
+    public boolean isLevelComplete() { return state == State.LEVEL_COMPLETE; }
     
     public Board getBoard() { return board; }
     public Capsule getCurrentCapsule() { return currentCapsule; }
     public Capsule getNextCapsule() { return nextCapsule; }
     public ScoreManager getScore() { return score; }
-    public boolean isGameOver() { return gameOver; }
 }

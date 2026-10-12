@@ -67,20 +67,11 @@ public class Gravity {
      * @param board   the game board
      * @return true if rotation is valid, false otherwise
      */
-    public static boolean canRotate(Capsule capsule, Board board){
+    public static boolean canRotate(Capsule capsule, Board board) {
         Capsule rotated = capsule.copy();
         rotated.rotate();
-        
-        // After rotation, capsule might be pushed out of bounds
-        // Try to "kick" it back into the board
-        if (!isValidPosition(rotated, board)){
-            // Try moving left
-            if (rotated.getCol() >= 0 && rotated.getSecondCol() < Board.WIDTH) {
-                return false;
-            }
-            return false;
-        }
-        return true;
+
+        return isValidPosition(rotated, board);
     }
     
     /**

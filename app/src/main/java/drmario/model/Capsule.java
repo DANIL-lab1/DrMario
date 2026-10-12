@@ -68,26 +68,28 @@ public class Capsule {
     
     /**
      * Returns the row of the second half.
-     * <p>
-     * For HORIZONTAL: same as first half's row.<br>
-     * For VERTICAL: first half's row + 1.
      *
      * @return the row of the second half
      */
     public int getSecondRow() {
-        return direction == Direction.VERTICAL ? row + 1 : row;
+        return switch (direction) {
+            case HORIZONTAL, HORIZONTAL_REVERSED -> row;
+            case VERTICAL -> row + 1;
+            case VERTICAL_REVERSED -> row - 1;
+        };
     }
-    
+
     /**
      * Returns the column of the second half.
-     * <p>
-     * For HORIZONTAL: first half's column + 1.<br>
-     * For VERTICAL: same as first half's column.
      *
      * @return the column of the second half
      */
     public int getSecondCol() {
-        return direction == Direction.HORIZONTAL ? col + 1 : col;
+        return switch (direction) {
+            case VERTICAL, VERTICAL_REVERSED -> col;
+            case HORIZONTAL -> col + 1;
+            case HORIZONTAL_REVERSED -> col - 1;
+        };
     }
     
     // ========== MOVEMENT ==========
@@ -114,14 +116,17 @@ public class Capsule {
     }
     
     /**
-     * Rotates the capsule 90 degrees.
+     * Rotates the capsule 90 degrees clockwise.
      * <p>
-     * HORIZONTAL → VERTICAL, VERTICAL → HORIZONTAL.
+     * Cycle: HORIZONTAL → VERTICAL → HORIZONTAL_REVERSED → VERTICAL_REVERSED → HORIZONTAL
      */
     public void rotate() {
-        direction = (direction == Direction.HORIZONTAL) 
-            ? Direction.VERTICAL 
-            : Direction.HORIZONTAL;
+        direction = switch (direction) {
+            case HORIZONTAL -> Direction.VERTICAL;
+            case VERTICAL -> Direction.HORIZONTAL_REVERSED;
+            case HORIZONTAL_REVERSED -> Direction.VERTICAL_REVERSED;
+            case VERTICAL_REVERSED -> Direction.HORIZONTAL;
+        };
     }
     
     /**
