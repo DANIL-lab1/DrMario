@@ -2,6 +2,11 @@
 
 A clone of Dr. Mario built with JavaFX.
 
+![Version](https://img.shields.io/badge/version-0.5-blue)
+![Java](https://img.shields.io/badge/Java-21-orange)
+![JavaFX](https://img.shields.io/badge/JavaFX-21-green)
+![Progress](https://img.shields.io/badge/progress-85%25-yellow)
+
 **Status:** 🚧 Work in Progress
 
 ## About
@@ -15,62 +20,81 @@ Built from scratch in Java with JavaFX for learning purposes.
 - [x] `PillColor` — enum (RED, BLUE, GREEN)
 - [x] `Cell` — single cell (EMPTY, PILL, VIRUS)
 - [x] `Board` — 8x16 grid
-- [x] `Direction` — enum (HORIZONTAL, VERTICAL)
-- [x] `Capsule` — two-colored pill with rotation
+- [x] `Direction` — enum (HORIZONTAL, VERTICAL, HORIZONTAL_REVERSED, VERTICAL_REVERSED)
+- [x] `Capsule` — two-colored pill with 360° rotation
+- [x] `Position` — immutable coordinates
 
 ### Logic ✅
 - [x] `Gravity` — collision detection, movement validation
-- [x] `Matcher` — find 4+ same-colored groups
-- [x] `VirusSpawner` — generate viruses
-- [x] `ScoreManager` — score and level tracking
-- [x] `GameEngine` — central game logic
+- [x] `Matcher` — find 4+ same-colored groups (BFS)
+- [x] `VirusSpawner` — generate viruses per level
+- [x] `ScoreManager` — score, level, and speed tracking
+- [x] `GameEngine` — central game logic with states
 
-### UI 🚧
-- [ ] `GamePanel` — JavaFX Canvas rendering
-- [ ] `KeyHandler` — keyboard controls (arrows, space)
-- [ ] `GameLoop` — AnimationTimer
-- [ ] Animations — falling, clearing
+### UI ✅
+- [x] `GamePanel` — JavaFX Canvas rendering
+- [x] `KeyHandler` — keyboard controls (arrows, space)
+- [x] `GameLoop` — AnimationTimer
 
-### Gameplay ⏳
-- [ ] Levels
-- [ ] Score
-- [ ] Game Over
+### Gameplay ✅
+- [x] Falling capsules
+- [x] Rotation (4 states, 360°)
+- [x] Match detection (4+)
+- [x] Viruses + score
+- [x] Smooth gravity animation
+- [x] Level complete screen
+- [x] Multiple levels
+
+### Improvements 🚧
+- [ ] Game Over screen
 - [ ] Win condition
+- [ ] Virus disappearance animation
+- [ ] Sound effects
+- [ ] Pause menu
+
+## Known Issues
+
+- [ ] Blocks below match also fall (gravity bug)
+- [ ] `LEVEL COMPLETE` appears after 2 capsules
+- [ ] No animation when viruses disappear
 
 ## Version History
 
-### v0.1 — Model ✅
-- Model: `PillColor`, `Cell`, `Board`, `Direction`, `Capsule`
+### v0.5 — Level Complete + Smooth Gravity ✅
+- Add `State.LEVEL_COMPLETE` for level transition
+- Add `LEVEL COMPLETE!` screen with SPACE prompt
+- Add 4-state capsule rotation (360°)
+- Add `ANIMATING` state for smooth gravity
+- Add `stepGravity` for falling blocks
+- Remove `FALLING...` debug message
+
+### v0.4 — JavaFX UI ✅
+- Add `GamePanel` — Canvas rendering
+- Add `KeyHandler` — keyboard controls
+- Add `AnimationTimer` game loop
+- Add `Launcher` — JavaFX workaround
+- Game is now playable!
+
+### v0.3 — GameEngine ✅
+- Add `GameEngine` — central game logic
+- Game lifecycle: start, tick, lock, match, level up
+- Add `ScoreManager` — score, levels, speed
+- Add `VirusSpawner` — virus generation
 
 ### v0.2 — Matcher ✅
-- Logic: `Matcher` — find 4+ groups (BFS)
-- Logic: `Gravity` — collision detection
-- Model: `Position` — immutable coordinates
+- Add `Matcher` — find 4+ groups (BFS)
+- Add `Gravity` — collision detection
+- Add `Position` — immutable coordinates
 - Fix: `DIRECTIONS` array (right was duplicated)
 
-### v0.3 — VirusSpawner ✅
-- Logic: `VirusSpawner` — random virus placement
-- Logic: `VirusSpawner` — viruses per level formula
-- Model: `Board.addVirus()` method
-
-### v0.4 — ScoreManager ✅
-- Logic: `ScoreManager` — score tracking
-- Logic: `ScoreManager` — level progression
-- Logic: `ScoreManager` — speed increase per level
-- Scoring: +10 per pill, +100 per virus, +1000 per level
-
-### v0.5 — GameEngine ✅
-- Logic: `GameEngine` — central class connecting all logic
-- Logic: `ScoreManager` — score, levels, speed
-- Logic: `VirusSpawner` — virus generation
-- Game lifecycle: start, tick, lock, match, level up
+### v0.1 — Model ✅
+- Add `PillColor`, `Cell`, `Board`, `Direction`, `Capsule`
 
 ### v1.0 — Playable Game ⏳
-- JavaFX UI: `GamePanel`, `KeyHandler`, `GameLoop`
-- Full game loop with animations
 - Game Over screen
 - Win condition
 - Sound effects
+- All bugs fixed
 
 ## Technologies
 
@@ -88,7 +112,9 @@ cd DrMario
 ```
 
 ## Author
-DANIL-lab1
 
-## License 
+[DANIL-lab1](https://github.com/DANIL-lab1)
+
+## License
+
 MIT License
