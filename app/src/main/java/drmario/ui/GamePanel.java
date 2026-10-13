@@ -78,6 +78,19 @@ public class GamePanel extends Canvas {
             gc.setFill(Color.WHITE);
             gc.fillText("Press SPACE to continue", 60, 300);
         }
+        
+        if (engine.isGameOver()) {
+            gc.setFill(Color.color(0, 0, 0, 0.7));
+            gc.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+
+            gc.setFill(Color.RED);
+            gc.setFont(Font.font("Monospace", FontWeight.BOLD, 36));
+            gc.fillText("GAME OVER", 60, 280);
+
+            gc.setFill(Color.WHITE);
+            gc.setFont(Font.font("Monospace", FontWeight.BOLD, 16));
+            gc.fillText("Press R to restart", 80, 330);
+        }
     }
     
     /**

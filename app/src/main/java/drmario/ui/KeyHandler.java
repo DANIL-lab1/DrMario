@@ -33,9 +33,14 @@ public class KeyHandler {
      * @param event the key event
      */
     public void handle(KeyEvent event) {
-        if (engine.isGameOver()) return;
-        
         KeyCode code = event.getCode();
+        
+        if (engine.isGameOver()) {
+            if (code == KeyCode.R) {
+                engine.startNewGame();
+            }
+            return;
+        }
         
         switch (code) {
             case LEFT:

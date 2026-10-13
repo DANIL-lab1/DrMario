@@ -32,17 +32,16 @@ public class GameEngine {
     public enum State {
         PLAYING,
         ANIMATING,
-        LEVEL_COMPLETE, 
+        LEVEL_COMPLETE,
         GAME_OVER
     }
     
     private State state;
     private double animationTimer;
     private static final double ANIMATION_STEP_TIME = 0.1;
-    private Set<Integer> animatingColumns;
     
     private double levelCompleteTimer;
-    private static final double LEVEL_COMPLETE_DELAY = 2.0; 
+    private static final double LEVEL_COMPLETE_DELAY = 2.0;
     
     /** Starting column for new capsules (center). */
     private static final int SPAWN_COL = Board.WIDTH / 2 - 1;
@@ -55,7 +54,6 @@ public class GameEngine {
     private Capsule nextCapsule;
     private ScoreManager score;
     private VirusSpawner spawner;
-    private boolean gameOver;
     
     /** Time accumulator for automatic falling. */
     private double fallTimer;
@@ -76,10 +74,10 @@ public class GameEngine {
     public void startNewGame() {
         this.board = new Board();
         this.score = new ScoreManager();
-        this.gameOver = false;
         this.state = State.PLAYING;
         this.animationTimer = 0;
         this.fallTimer = 0;
+        this.levelCompleteTimer = 0;
         
         // Spawn viruses for level 1
         int virusCount = VirusSpawner.virusesForLevel(score.getLevel());
@@ -102,7 +100,7 @@ public class GameEngine {
         
         // Check if spawn position is valid
         if (!Gravity.isValidPosition(currentCapsule, board)) {
-            state = State.GAME_OVER;  // ← Вместо gameOver = true
+            state = State.GAME_OVER;
         }
     }
     
@@ -130,7 +128,6 @@ public class GameEngine {
      */
     public void moveDown() {
         if (!isPlaying() || currentCapsule == null) return;
-        if (gameOver || currentCapsule == null) return;
         
         if (Gravity.canMoveDown(currentCapsule, board)) {
             currentCapsule.moveDown();
@@ -144,7 +141,6 @@ public class GameEngine {
      */
     public void moveLeft() {
         if (!isPlaying() || currentCapsule == null) return;
-        if (gameOver || currentCapsule == null) return;
         
         if (Gravity.canMoveLeft(currentCapsule, board)) {
             currentCapsule.moveLeft();
@@ -156,7 +152,6 @@ public class GameEngine {
      */
     public void moveRight() {
         if (!isPlaying() || currentCapsule == null) return;
-        if (gameOver || currentCapsule == null) return;
         
         if (Gravity.canMoveRight(currentCapsule, board)) {
             currentCapsule.moveRight();
@@ -168,7 +163,6 @@ public class GameEngine {
      */
     public void rotate() {
         if (!isPlaying() || currentCapsule == null) return;
-        if (gameOver || currentCapsule == null) return;
         
         if (Gravity.canRotate(currentCapsule, board)) {
             currentCapsule.rotate();
@@ -180,7 +174,6 @@ public class GameEngine {
      */
     public void drop() {
         if (!isPlaying() || currentCapsule == null) return;
-        if (gameOver || currentCapsule == null) return;
         
         while (Gravity.canMoveDown(currentCapsule, board)) {
             currentCapsule.moveDown();
@@ -192,44 +185,42 @@ public class GameEngine {
     
     /**
      * Called every frame to update the game state.
-     * <p>
-     * Automatically moves the capsule down based on fall speed.
      *
      * @param deltaTime time since last tick in seconds
      */
     public void tick(double deltaTime) {
         // Game Over State
         if (state == State.GAME_OVER) return;
-
-        // Animating State
+        
+        // Level Complete State — wait for SPACE
+        if (state == State.LEVEL_COMPLETE) {
+            return;
+        }
+        
+        // Animating State — pause for animation
         if (state == State.ANIMATING) {
             animationTimer += deltaTime;
-
+            
             if (animationTimer >= ANIMATION_STEP_TIME) {
                 animationTimer = 0;
                 state = State.PLAYING;
-                animatingColumns = null;
-
+                
+                // Check for chain reaction matches
                 if (Matcher.hasMatches(board)) {
                     processMatches();
                 }
             }
             return;
         }
-
+        
         // Playing State
         if (state == State.PLAYING && currentCapsule != null) {
             fallTimer += deltaTime;
-
+            
             if (fallTimer >= score.getFallSpeed()) {
                 fallTimer = 0;
                 moveDown();
             }
-        }
-        
-        // Level complete State
-        if (state == State.LEVEL_COMPLETE) {
-            return;
         }
     }
     
@@ -237,14 +228,6 @@ public class GameEngine {
     
     /**
      * Locks the current capsule into the board and advances to the next.
-     * <p>
-     * After locking:
-     * <ol>
-     *     <li>Check for matches</li>
-     *     <li>Clear matches and add score</li>
-     *     <li>Check for level completion</li>
-     *     <li>Spawn new capsule</li>
-     * </ol>
      */
     private void lockAndAdvance() {
         Gravity.lockCapsule(currentCapsule, board);
@@ -261,19 +244,19 @@ public class GameEngine {
      */
     private void processMatches() {
         boolean foundMatches = true;
-
+        
         while (foundMatches) {
             List<Set<Position>> matches = Matcher.findMatches(board);
-
+            
             if (matches.isEmpty()) {
                 foundMatches = false;
                 continue;
             }
-
+            
             Set<Integer> affectedColumns = new HashSet<>();
             int virusesCleared = 0;
             int pillsCleared = 0;
-
+            
             for (Set<Position> group : matches) {
                 for (Position pos : group) {
                     if (board.getCell(pos.getRow(), pos.getCol()).isVirus()) {
@@ -285,18 +268,30 @@ public class GameEngine {
                     board.setCell(pos.getRow(), pos.getCol(), new Cell());
                 }
             }
-
+            
             score.addPillsCleared(pillsCleared);
             score.addVirusesCleared(virusesCleared);
-
+            
             if (!affectedColumns.isEmpty()) {
+                // Apply gravity INSTANTLY (only blocks above match fall)
                 board.applyGravity(affectedColumns);
+                
+                // Check if all viruses cleared
+                if (board.countViruses() == 0) {
+                    state = State.LEVEL_COMPLETE;
+                    levelCompleteTimer = 0;
+                    score.completeLevel();
+                    return;
+                }
+                
+                // Pause for animation
                 state = State.ANIMATING;
                 animationTimer = 0;
                 return;
             }
         }
-
+        
+        // Check level completion (for cases without matches)
         if (board.countViruses() == 0) {
             state = State.LEVEL_COMPLETE;
             levelCompleteTimer = 0;
@@ -309,14 +304,14 @@ public class GameEngine {
      */
     public void startNextLevel() {
         if (state != State.LEVEL_COMPLETE) return;
-
+        
         board.clear();
         int virusCount = VirusSpawner.virusesForLevel(score.getLevel());
         spawner.spawn(board, virusCount);
-
+        
         this.nextCapsule = createRandomCapsule();
         spawnNewCapsule();
-
+        
         state = State.PLAYING;
     }
     
