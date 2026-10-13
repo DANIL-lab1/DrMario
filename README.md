@@ -2,10 +2,10 @@
 
 A clone of Dr. Mario built with JavaFX.
 
-![Version](https://img.shields.io/badge/version-0.5-blue)
+![Version](https://img.shields.io/badge/version-0.6-blue)
 ![Java](https://img.shields.io/badge/Java-21-orange)
 ![JavaFX](https://img.shields.io/badge/JavaFX-21-green)
-![Progress](https://img.shields.io/badge/progress-85%25-yellow)
+![Progress](https://img.shields.io/badge/progress-90%25-yellow)
 
 **Status:** 🚧 Work in Progress
 
@@ -41,12 +41,12 @@ Built from scratch in Java with JavaFX for learning purposes.
 - [x] Rotation (4 states, 360°)
 - [x] Match detection (4+)
 - [x] Viruses + score
-- [x] Smooth gravity animation
 - [x] Level complete screen
+- [x] Game Over screen
 - [x] Multiple levels
 
 ### Improvements 🚧
-- [ ] Game Over screen
+- [ ] **Gravity bug fix** (planned for v1.1)
 - [ ] Win condition
 - [ ] Virus disappearance animation
 - [ ] Sound effects
@@ -54,11 +54,17 @@ Built from scratch in Java with JavaFX for learning purposes.
 
 ## Known Issues
 
-- [ ] Blocks below match also fall (gravity bug)
-- [ ] `LEVEL COMPLETE` appears after 2 capsules
+- [ ] **Gravity bug**: Blocks below a match also fall (planned for v1.1)
 - [ ] No animation when viruses disappear
 
 ## Version History
+
+### v0.6 — Game Over + Level Complete Fix ✅
+- Add `GAME OVER` screen with `R` to restart
+- Fix `LEVEL COMPLETE` appears immediately after last virus
+- Replace `stepGravity` with `applyGravity` (partial fix)
+- Improve game state management: `PLAYING`, `ANIMATING`, `LEVEL_COMPLETE`, `GAME_OVER`
+- Known issue: blocks below match still fall (planned for v1.1)
 
 ### v0.5 — Level Complete + Smooth Gravity ✅
 - Add `State.LEVEL_COMPLETE` for level transition
@@ -91,10 +97,10 @@ Built from scratch in Java with JavaFX for learning purposes.
 - Add `PillColor`, `Cell`, `Board`, `Direction`, `Capsule`
 
 ### v1.0 — Playable Game ⏳
-- Game Over screen
+- Gravity bug fix
 - Win condition
 - Sound effects
-- All bugs fixed
+- All known issues fixed
 
 ## Technologies
 
