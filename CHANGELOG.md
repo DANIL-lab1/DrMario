@@ -74,7 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ScoreManager` — score, levels, speed
 - `VirusSpawner` — virus generation
 
-## [0.2.0] - 2026-10-11
+## [0.2.0] - 2026-10-02
 
 ### Added
 - `Matcher` — find 4+ groups (BFS)
@@ -84,7 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `DIRECTIONS` array (right was duplicated)
 
-## [0.1.0] - 2026-10-10
+## [0.1.0] - 2026-10-01
 
 ### Added
 - `PillColor`, `Cell`, `Board`, `Direction`, `Capsule`
