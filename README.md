@@ -2,10 +2,10 @@
 
 A clone of Dr. Mario built with JavaFX.
 
-![Version](https://img.shields.io/badge/version-0.6-blue)
+![Version](https://img.shields.io/badge/version-1.0-blue)
 ![Java](https://img.shields.io/badge/Java-21-orange)
 ![JavaFX](https://img.shields.io/badge/JavaFX-21-green)
-![Progress](https://img.shields.io/badge/progress-90%25-yellow)
+![Progress](https://img.shields.io/badge/progress-100%25-green)
 
 **Status:** 🚧 Work in Progress
 
@@ -58,6 +58,12 @@ Built from scratch in Java with JavaFX for learning purposes.
 - [ ] No animation when viruses disappear
 
 ## Version History
+
+### v1.0 — Playable Game 🎉
+- Complete Dr. Mario clone
+- All core gameplay implemented
+- Known issue: gravity bug (planned for v1.1)
+- First release!
 
 ### v0.6 — Game Over + Level Complete Fix ✅
 - Add `GAME OVER` screen with `R` to restart
